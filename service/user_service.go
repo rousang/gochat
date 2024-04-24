@@ -2,6 +2,7 @@ package service
 
 import (
 	"gochat/models"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,8 +49,16 @@ func CreateUser(c *gin.Context) {
 
 func DeleteUser(c *gin.Context) {
 	var user models.UserBasic
-	user.Name = c.Query("name")
-	err := models.DeleteUser(user)
+	// user.Name = c.Query("name")
+	id, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "error ID",
+		})
+		return
+	}
+	user.ID = uint(id)
+	err = models.DeleteUser(user)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "error",
@@ -57,6 +66,30 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"message": "Delet success",
+		"message": "Delete success",
+	})
+}
+
+func UpdateUser(c *gin.Context) {
+	// user := models.UserBasic{}
+	name := c.Query("name")
+	passwd := c.Query("password")
+	user, err := models.GetUserByName(name)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"Error": "Find user error",
+		})
+		return
+	}
+	user.PassWord = passwd
+	err = models.UpdateUser(*user)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"Error": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"message": "Update success",
 	})
 }

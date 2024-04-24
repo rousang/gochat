@@ -50,3 +50,18 @@ func DeleteUser(user UserBasic) error {
 	}
 	return nil
 }
+
+func UpdateUser(user UserBasic) error {
+	if err := utils.DB.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetUserByName(name string) (*UserBasic, error) {
+	user := &UserBasic{}
+	if err := utils.DB.Where("name = ?", name).First(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
