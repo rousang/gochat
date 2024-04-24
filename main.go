@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"gochat/router"
+	"gochat/utils"
+)
 
 func main() {
-	fmt.Println("Hello, gochat!")
+	utils.InitConfig()
+	utils.InitMySQL()
+
+	r := router.Router()
+	r.Run()
 }
