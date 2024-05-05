@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"gochat/models"
 	"strconv"
 	"time"
@@ -72,8 +73,10 @@ func DeleteUser(c *gin.Context) {
 
 func UpdateUser(c *gin.Context) {
 	// user := models.UserBasic{}
-	name := c.Query("name")
-	passwd := c.Query("password")
+	name := c.PostForm("name")
+	passwd := c.PostForm("password")
+	fmt.Println("name:", name)
+	fmt.Println("passwd:", passwd)
 	user, err := models.GetUserByName(name)
 	if err != nil {
 		c.JSON(500, gin.H{

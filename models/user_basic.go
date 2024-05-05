@@ -28,6 +28,13 @@ func (table *UserBasic) TableNmae() string {
 	return "user_basic"
 }
 
+// func init() {
+// 	if !utils.DB.Migrator().HasTable(&UserBasic{}) {
+// 		utils.DB.Migrator().CreateTable(&UserBasic{})
+// 	}
+
+// }
+
 func GetUserList() []*UserBasic {
 	data := make([]*UserBasic, 10)
 	utils.DB.Find(&data)

@@ -41,6 +41,5 @@ func InitMySQL() {
 		panic("failed to connect database")
 	}
 	DB = db
-	// fmt.Println("数据库连接成功！")
-
+	fmt.Println("数据库连接成功！")
 }
