@@ -12,8 +12,8 @@ type UserBasic struct {
 	gorm.Model
 	Name          string
 	PassWord      string
-	Phone         string
-	Email         string
+	Phone         string `valid:"matches(1[3-9]\\d{9})"`
+	Email         string `valid:"email"`
 	Identity      string
 	ClientIP      string
 	ClientPort    string
@@ -65,9 +65,25 @@ func UpdateUser(user UserBasic) error {
 	return nil
 }
 
-func GetUserByName(name string) (*UserBasic, error) {
+func FindUserByName(name string) (*UserBasic, error) {
 	user := &UserBasic{}
 	if err := utils.DB.Where("name = ?", name).First(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func FindUserByPhone(phone string) (*UserBasic, error) {
+	user := &UserBasic{}
+	if err := utils.DB.Where("phone = ?", phone).First(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func FindUserByEmial(email string) (*UserBasic, error) {
+	user := &UserBasic{}
+	if err := utils.DB.Where("email = ?", email).First(user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil

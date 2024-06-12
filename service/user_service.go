@@ -1,11 +1,12 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 	"gochat/models"
 	"strconv"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,6 +37,15 @@ func CreateUser(c *gin.Context) {
 	user.LoginTime = time.Now()
 	user.HeartbeatTime = time.Now()
 	user.LogoutTime = time.Now()
+
+	if ok, err := govalidator.ValidateStruct(user); !ok {
+		c.JSON(500, gin.H{
+			"message": "新建用户失败",
+			"Error":   err.Error(),
+		})
+		return
+	}
+
 	err := models.CreateUser(user)
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -74,17 +84,27 @@ func DeleteUser(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	// user := models.UserBasic{}
 	name := c.PostForm("name")
-	passwd := c.PostForm("password")
-	fmt.Println("name:", name)
-	fmt.Println("passwd:", passwd)
-	user, err := models.GetUserByName(name)
+	user, err := models.FindUserByName(name)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"Error": "Find user error",
 		})
 		return
 	}
-	user.PassWord = passwd
+	// 修改内容
+	user.PassWord = c.PostForm("password")
+	user.Phone = c.PostForm("phone")
+	user.Email = c.PostForm("email")
+
+	if ok, err := govalidator.ValidateStruct(user); !ok {
+		c.JSON(500, gin.H{
+			"message": "修改失败",
+			"Error":   err.Error(),
+		})
+		return
+
+	}
+
 	err = models.UpdateUser(*user)
 	if err != nil {
 		c.JSON(500, gin.H{
@@ -95,4 +115,24 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Update success",
 	})
+}
+
+func CheckDuplicate(c *gin.Context) (bool, error) {
+	name := c.Query("name")
+	phone := c.Query("phone")
+	email := c.Query("email")
+
+	if _, err := models.FindUserByName(name); err == nil {
+		return false, errors.New("用户名已存在")
+	}
+
+	if _, err := models.FindUserByPhone(phone); err == nil {
+		return false, errors.New("手机号已存在")
+	}
+
+	if _, err := models.FindUserByEmial(email); err == nil {
+		return false, errors.New("邮箱已存在")
+	}
+
+	return true, nil
 }
